@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Music App</title>
+</head>
+
+<style>
+    input,
+    textarea,
+    button,
+    select,
+    a,
+    .circle {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+
+    }
+
+    #progress-bar {
+        height: 10vh;
+        width: 100vw;
+        position: relative;
+    }
+
+    #progress {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        background: #cc00ff;
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+        transition: 1s linear;
+    }
+
+    #circle-box {
+        height: 86vh;
+        width: 96vw;
+        margin: 2vh 0 0 2vw; 
+        position: relative;
+        display: flex;
+        flex-flow: row nowrap;
+        transition: 0.6s ease-out;
+
+    }
+
+    #row-left {
+        display: flex;
+        flex-flow: column nowrap;
+        width: 50%;
+        transition: 0.6s ease-out;
+
+    }
+
+    #row-right {
+        display: flex;
+        flex-flow: column nowrap;
+        width: 50%;
+        transition: 0.6s ease-out;
+
+    }
+
+    .box-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .box-left {
+        height: 33%;
+    }
+
+    .box-right {
+        height: 50%;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 90%;
+        background-color: green;
+        cursor: pointer;
+        transition: 0.6s ease-out;
+        transform: scale(0);
+    }
+
+
+    @keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .audio {
+        display: none;
+    }
+
+    #modal {
+        position: absolute;
+        height: 30vh;
+        width: 80vw;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: black;
+        opacity: 0.8;
+        font-size: 3em;
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+        z-index: 10000;
+        text-transform: capitalize;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+        border-radius: 6px;
+        transition: 0.3s ease-out;
+    }
+
+</style>
+
+<body>
+    <div id="game">
+        <div id="modal"><div>start</div></div>
+        <div id="progress-bar">
+            <div id="progress"></div>
+        </div>
+
+        <div id="circle-box">
+            <div id="row-left">
+                <div class="box-left box-container"></div>
+                <div class="box-left box-container"></div>
+                <div class="box-left box-container"></div>
+            </div>
+            <div id="row-right">
+                <div class="box-right box-container"></div>
+                <div class="box-right box-container"></div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+<script src="./app.js"></script>
+
+</html>
