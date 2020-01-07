@@ -42,7 +42,8 @@ modal.addEventListener("click", (e) => {
             break;
         case gameStates.ORDERING:
             break;
-        default: break;
+        default:
+            break;
     }
 });
 
@@ -58,13 +59,14 @@ window.addEventListener("gameStateChanged", (e) => {
         case gameStates.LISTENING:
             hideModal();
             initSong(0, 0);
-            startTimer(5000, 10000, gameStates.ORDERING);
+            startTimer(60000, 10000, gameStates.ORDERING);
             break;
         case gameStates.ORDERING:
             startOrderPhase();
             console.log("Switched state to ordering");
             break;
-        default: break;
+        default:
+            break;
     }
 });
 
