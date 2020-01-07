@@ -67,6 +67,7 @@ window.addEventListener("gameStateChanged", (e) => {
             break;
         default:
             break;
+            // für was braucht man default hier? 
     }
 });
 
