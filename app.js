@@ -3,8 +3,9 @@ const snippetCount = 5;
 let snippets = [];
 // randomize it each time
 let colorSchemes = [
-    ["yellow", "cyan", "magenta", "black", "#0014ff"],
-    ["red", "blue", "orange", "purple", "agua"]
+    ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
+    ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"],
+    ["FF3B01", "316CF4", "FF5FDB", "000000", "FDDFE1"]
 ];
 let containerNumbers = [0, 1, 2, 3, 4];
 let circleBox = document.querySelector("#circle-box");
@@ -177,6 +178,8 @@ function startTimer(initTime, alertTime, targetState) {
         remainingTime -= 1000;
         document.querySelector("#progress").style.width = (remainingTime / initTime) * 100 + "%";
         if (remainingTime === alertTime - 1000) {
+            document.querySelector("#progress").style.transition.property = "background";
+            document.querySelector("#progress").style.transition.duration = "0.5s";
             document.querySelector("#progress").style.background = "red";
         }
         if (remainingTime === 0) {
