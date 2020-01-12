@@ -9,21 +9,17 @@
 </head>
 
 <style>
-    input,
-    textarea,
-    button,
-    select,
-    a,
-    .circle {
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    }
-    
     body {
         margin: 0 !important;
         padding: 0 !important;
         height: 100vh;
         width: 100vw;
         overflow: hidden;
+    }
+    
+    button,
+    .circle {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
     
     #progress-bar {
@@ -80,8 +76,10 @@
     }
     
     .circle {
-        position: absolute;
-        border-radius: 90%;
+        position: relative;
+        margin: auto;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
         background-color: green;
         cursor: pointer;
         transition: 0.6s ease-out;
@@ -115,20 +113,18 @@
         opacity: 0.8;
         font-family: Arial, Helvetica, sans-serif;
         color: white;
-        z-index: 1000;
-        /* why 1000?*/
-        /*text-transform: capitalize;*/
+        z-index: 1;
         border-radius: 6px;
         transition: 0.3s ease-out;
     }
     
     #modaltext {
+        user-select: none;
         position: relative;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 2em;
+        font-size: 1.5em;
         white-space: wrap;
-        text-align: center;
         padding: 10%;
     }
 </style>
@@ -136,7 +132,10 @@
 <body>
     <div id="game">
         <div id="modal">
-            <div id="modaltext">start this game! it's dope wuhuuu hahah</div>
+            <div id="modaltext">
+                <p>Guess the right order of the song.</p>
+                <p> Click here to start! </p>
+            </div>
         </div>
         <div id="progress-bar">
             <div id="progress"></div>

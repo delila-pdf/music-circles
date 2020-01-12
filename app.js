@@ -1,7 +1,7 @@
 const snippetCount = 5;
-// snippet objects of a song, containing order, path, circle, audio, isPlaying
+// snippet objects of a song
 let snippets = [];
-// randomize it each time
+// randomize snippets each time
 let colorSchemes = [
     ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
     ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"],
@@ -11,11 +11,12 @@ let containerNumbers = [0, 1, 2, 3, 4];
 let circleBox = document.querySelector("#circle-box");
 
 const gameStates = {
-    INITIAL: "start",
-    LISTENING: "listening",
-    ORDERING: "ordering"
+    initial: "start",
+    listening: "listening",
+    ordering: "ordering"
 };
-let gameState = gameStates.INITIAL;
+let gameState = gameStates.initial;
+//beginning gameState
 
 const modal = document.querySelector("#modal");
 
@@ -24,24 +25,17 @@ function hideModal() {
     setTimeout(() => {
         modal.style.display = "none";
     }, 300);
+    modal.style.opacity = "0";
 }
 
-function revealModal(text) {
-    modal.querySelector("div").innerHTML = text;
-    modal.style.display = "flex";
-    setTimeout(() => {
-        modal.style.opacity = "0.8";
-    }, 300);
-}
-
-modal.addEventListener("click", (e) => {
+modal.addEventListener("click", function() {
     switch (gameState) {
-        case gameStates.INITIAL:
-            changeGameState(gameStates.LISTENING);
+        case gameStates.initial:
+            changeGameState(gameStates.listening);
             break;
-        case gameStates.LISTENING:
+        case gameStates.listening:
             break;
-        case gameStates.ORDERING:
+        case gameStates.listening:
             break;
         default:
             break;
@@ -50,33 +44,29 @@ modal.addEventListener("click", (e) => {
 
 function changeGameState(state) {
     gameState = state;
-    window.dispatchEvent(new Event("gameStateChanged"));
-}
-
-window.addEventListener("gameStateChanged", (e) => {
     switch (gameState) {
-        case gameStates.INITIAL:
+        case gameStates.initial:
             break;
-        case gameStates.LISTENING:
+        case gameStates.listening:
             hideModal();
             initSong(0, 0);
-            startTimer(60000, 10000, gameStates.ORDERING);
+            startTimer(60000, 10000, gameStates.ordering);
             break;
-        case gameStates.ORDERING:
+        case gameStates.ordering:
             startOrderPhase();
-            console.log("Switched state to ordering");
             break;
         default:
             break;
-            // für was braucht man default hier? 
     }
-});
+}
+//after clicking on modal
+
 
 
 function initSong(songNumber, colorSchemeNumber) {
     // remove old song
     snippets = [];
-    // randomize containers
+    // randomize containers of circles
     containerNumbers.sort(() => {
         return Math.random() >= 0.5 ? 1 : -1;
     });
@@ -84,14 +74,15 @@ function initSong(songNumber, colorSchemeNumber) {
     createSnippets(songNumber, colorSchemeNumber);
 
     const bar = document.querySelector("#progress-bar");
-    bar.addEventListener("click", () => startOrderPhase())
+    bar.addEventListener("click", startOrderPhase)
 }
 
 function createSnippets(songNumber, colorSchemeNumber) {
-    // shuffle colors
+    // random colors
     colorSchemes[colorSchemeNumber].sort(() => {
         return Math.random() >= 0.5 ? 1 : -1;
     });
+    //random container row
     circleBox.style.flexDirection = Math.random() >= 0.5 ? "row-reverse" : "row";
     // create snippet objects
     const boxContainers = document.querySelectorAll(".box-container");
@@ -104,10 +95,13 @@ function createSnippets(songNumber, colorSchemeNumber) {
             path: path,
             circle: circle,
             audio: audio,
-            isPlaying: false
+            isPlaying: false,
         });
         let snippet = snippets[i];
-        buildCircle(circle, colorSchemes[colorSchemeNumber][i], boxContainers[containerNumbers[i]], snippet);
+        buildCircle(circle, //id 
+            colorSchemes[colorSchemeNumber][i], //color
+            boxContainers[containerNumbers[i]], //order
+            snippet); //
         buildAudio(snippet);
     }
 }
@@ -118,57 +112,54 @@ function buildCircle(circle, color, boxContainer, snippet) {
 
     setCirclePositionAndSize(circle, createRandomPositionAndSize(boxContainer));
 
-    circle.addEventListener("click", e => {
+    circle.addEventListener("click", bounce)
+
+    function bounce() {
         if (!snippet.isPlaying) {
             // stop playing audio
-            snippets.forEach(s => {
-                s.audio.load()
-                s.isPlaying = false;
-                s.circle.style.animationName = "none";
-            });
+            for (let i = 0; i < snippets.length; i++) {
+                snippets[i].audio.load()
+                snippets[i].isPlaying = false;
+                snippets[i].circle.style.animationName = "none";
+            };
             snippet.audio.play();
             snippet.isPlaying = true;
             circle.style.animationName = "bounce";
             circle.style.animationDuration = "0.5s";
             circle.style.animationIterationCount = "infinite";
         }
-    });
+    };
     boxContainer.append(circle);
     setTimeout(() => { circle.style.transform = "scale(1)"; }, Math.random() * 300);
 }
 
-function setCirclePositionAndSize(circle, positionAndSize) {
-    circle.style.left = positionAndSize.x + "px";
-    circle.style.top = positionAndSize.y + "px";
-    circle.style.height = positionAndSize.diameter + "px";
-    circle.style.width = positionAndSize.diameter + "px";
-}
-
 function buildAudio(snippet) {
-    snippet.audio.addEventListener("ended", e => {
+    snippet.audio.addEventListener("ended", stopBouncingandPlaying)
+
+    function stopBouncingandPlaying() {
         snippet.isPlaying = false;
         snippet.circle.style.animationName = "none";
-    });
+    };
     snippet.audio.setAttribute("src", snippet.path);
     snippet.audio.setAttribute("class", "audio");
 }
 
+function setCirclePositionAndSize(circle, positionAndSize) {
+    //circle.style.left = positionAndSize.x + "px";
+    //circle.style.top = positionAndSize.y + "px";
+    circle.style.height = positionAndSize.durchmesser + "px";
+    circle.style.width = positionAndSize.durchmesser + "px";
+}
+
 function createRandomPositionAndSize(boxContainer) {
     const bounding = boxContainer.getBoundingClientRect();
-    // random diameter
-    let diameter = Math.random() * bounding.width;
-    while (diameter < bounding.width * 0.4) {
-        diameter = Math.random() * bounding.width;
+    // random durchmesser
+    let durchmesser = Math.random() * bounding.width;
+    while (durchmesser < bounding.width * 0.4) {
+        durchmesser = Math.random() * bounding.width;
     }
-    // random x
-    let x = -1;
-    while (x < 0) {
-        x = Math.random() * bounding.width - diameter;
-    }
-    // random y
-    let y = Math.random() * (bounding.height - diameter);
 
-    return { x: x, y: y, diameter: diameter };
+    return { durchmesser: durchmesser };
 }
 
 function startTimer(initTime, alertTime, targetState) {
@@ -194,20 +185,20 @@ function startOrderPhase() {
     let rowRight = document.querySelector("#row-right");
     let circles = document.querySelectorAll(".circle");
 
-    circleBox.style.flexFlow = "column nowrap";
+    circleBox.style.flexDirection = "column";
+    circleBox.style.flexWrap = "nowrap";
 
     rowLeft.style.height = "60%";
     rowLeft.style.width = "100%";
+    //3 circles, each 20%
 
     rowRight.style.height = "40%";
     rowRight.style.width = "100%";
+    //2 circles, each 20%
 
     circles.forEach(c => {
-        c.style.top = "50%";
-        c.style.left = "50%";
-        c.style.transform = "translate(-50%, -50%)";
-        c.style.width = "20vw";
-        c.style.height = "20vw";
+        c.style.width = "25vw";
+        c.style.height = "25vw";
     });
 
 }
