@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<style>
+    #sort-bar {
+        display: flex;
+        height: 10vh;
+        width: 100vw;
+        position: relative;
+        top: 0;
+    }
+
+    #sort-bar > div {
+        width: 24%;
+        height: 100%;
+        border: 1px solid grey;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #circle-box {
+        margin: 200px 0 0 50px;
+    }
+
+    .circle {
+        height: 50px;
+        width: 50px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background-color: green;
+        cursor: pointer;
+    }
+
+
+
+</style>
+
+<body>
+    <div id="game">
+        <div id="sort-bar">
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+            <div>4</div>
+            <div>5</div>
+        </div>
+
+        <div id="circle-box">
+
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+
+        </div>
+
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.js"></script>
+
+
+<script>
+
+const draggable = new Draggable.Droppable(document.querySelectorAll("#game"), {
+       draggable: ".circle",
+       dropzone: "div",
+       mirror: {
+      constrainDimensions: true,
+    }
+   });
+   draggable.on("drag:start", e => {
+        console.log(e);
+   });
+
+
+</script>
+</html>

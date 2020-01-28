@@ -28,7 +28,7 @@ function hideModal() {
     modal.style.opacity = "0";
 }
 
-modal.addEventListener("click", function() {
+modal.addEventListener("click", function () {
     switch (gameState) {
         case gameStates.initial:
             changeGameState(gameStates.listening);
@@ -50,7 +50,7 @@ function changeGameState(state) {
         case gameStates.listening:
             hideModal();
             initSong(0, 0);
-            startTimer(60000, 10000, gameStates.ordering);
+            startTimer(1000, 10000, gameStates.ordering);
             break;
         case gameStates.ordering:
             startOrderPhase();
@@ -190,15 +190,51 @@ function startOrderPhase() {
 
     rowLeft.style.height = "60%";
     rowLeft.style.width = "100%";
-    //3 circles, each 20%
+    // 3 circles, each 20%
 
     rowRight.style.height = "40%";
     rowRight.style.width = "100%";
-    //2 circles, each 20%
+    // 2 circles, each 20%
 
     circles.forEach(c => {
         c.style.width = "25vw";
         c.style.height = "25vw";
     });
+
+    // add top sort bar
+
+    circles.forEach(c => {
+        c.style.transition = "none";
+    });
+
+    const draggable = new Draggable.Draggable(document.querySelectorAll("#game"), {
+        draggable: ".circle"
+    });
+
+    draggable.on("drag:start", e => {
+        console.log(e);
+    });
+
+    let targetSortContainer; 
+
+    draggable.on("drag:move", e => {
+
+        if (e.data.sensorEvent.data.target.getAttribute("class") == "sort-container") {
+            targetSortContainer = e.data.sensorEvent.data.target;
+            e.data.sensorEvent.data.target.append(draggable.mirror);
+        } else {
+            circleBox.append(draggable.mirror);
+            targetSortContainer = null;
+        }
+    });
+
+    draggable.on("drag:stop", e => {
+        if (targetSortContainer != null) {
+            let circle = e.data.source;
+            targetSortContainer.append(circle);
+        }
+    });
+
+
 
 }
