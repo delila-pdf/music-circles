@@ -208,7 +208,8 @@ function startOrderPhase() {
     });
 
     const draggable = new Draggable.Draggable(document.querySelectorAll("#game"), {
-        draggable: ".circle"
+        draggable: ".circle",
+        delay: 0
     });
 
     draggable.on("drag:start", e => {
@@ -231,6 +232,7 @@ function startOrderPhase() {
     draggable.on("drag:stop", e => {
         if (targetSortContainer != null) {
             let circle = e.data.source;
+            circle.style += "z-index: -1;";
             targetSortContainer.append(circle);
         }
     });
