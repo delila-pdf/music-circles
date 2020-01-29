@@ -15,11 +15,17 @@
         height: 100vh;
         width: 100vw;
         overflow: hidden;
+        background-color: black;
     }
 
     button,
     .circle {
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+    .circle:focus,
+    #circle-box,
+    #game {
+        outline: none;
     }
 
     #progress-bar {
@@ -42,8 +48,8 @@
         display: flex;
         height: 10vh;
         width: 100vw;
-        position: relative;
-        top: 0;
+        position: absolute;
+        bottom: 0;
         display: none;
     }
 
@@ -51,7 +57,7 @@
         position: relative;
         width: 24%;
         height: 100%;
-        color: lightgray;
+        color: #f5f5f5;
         font-size: 1.5em;
         font-family: sans-serif;
         display: flex;
@@ -126,6 +132,7 @@
         cursor: pointer;
         transition: 0.6s ease-out;
         transform: scale(0);
+        opacity: 0.9;
     }
 
     @keyframes bounce {
@@ -153,10 +160,10 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: grey;
+        background: #252525;
         opacity: 0.8;
         font-family: Arial, Helvetica, sans-serif;
-        color: white;
+        color: #f5f5f5;
         z-index: 1;
         border-radius: 6px;
         transition: 0.3s ease-out;
@@ -183,6 +190,7 @@
 
     .draggable-mirror {
         z-index: 9999;
+        opacity: 0.86;
     }
 </style>
 

@@ -38,6 +38,7 @@ function displayModal(html) {
 }
 
 modal.addEventListener("click", function () {
+    openFullscreen();
     switch (gameState) {
         case gameStates.initial:
             changeGameState(gameStates.listening);
@@ -186,8 +187,6 @@ function startTimer(initTime, alertTime, targetState) {
     }, 1000);
 }
 
-
-
 function orderPhase() {
     hideModal();
     document.querySelectorAll(".circle").forEach(c => c.style.transform = "scale(1)");
@@ -211,7 +210,6 @@ function orderPhase() {
 
     // add top sort bar
 
-
     circles.forEach(c => {
         c.style.transition = "none";
     });
@@ -221,21 +219,21 @@ function orderPhase() {
         delay: 0
     });
 
-    draggable.on("drag:start", e => {
-        console.log(e);
-    });
-
     let targetSortContainer;
     let sortBarContainers = document.querySelectorAll(".sort-container");
 
-
     draggable.on("drag:move", e => {
-        if (e.data.sensorEvent.data.target.getAttribute("class") == "sort-container") {
-            targetSortContainer = e.data.sensorEvent.data.target;
-            e.data.sensorEvent.data.target.append(draggable.mirror);
-        } else {
-            circleBox.append(draggable.mirror);
-            targetSortContainer = null;
+        // draggable.js throws useless TypeErrors if you move out of the screen, thus we catch and ignore them
+        try {
+            if (e.data.sensorEvent.data.target.getAttribute("class") == "sort-container") {
+                targetSortContainer = e.data.sensorEvent.data.target;
+                e.data.sensorEvent.data.target.append(draggable.mirror);
+            } else {
+                circleBox.append(draggable.mirror);
+                targetSortContainer = null;
+            }
+        } catch (error) {
+            // do nothing
         }
     });
 
@@ -244,20 +242,56 @@ function orderPhase() {
         if (targetSortContainer != null) {
             circle.style += "z-index: -1;";
             targetSortContainer.append(circle);
-
+            // querySelectorAll returns a NodeList, filter() can only be called on Array -> transform with [...NodeList] (Rest Operator)
             if ([...sortBarContainers].filter(e => e.childElementCount == 0).length == 0) {
                 console.log("All in position");
                 // diplayVerify()
-
             } else {
                 console.log("Still ordering");
                 // hideVerify
             }
-        } else if (circle.parentNode.getAttribute("class") == "sort-container") {
+        } else {
             circleBox.append(circle);
+            // use background as key (draggable.js somehow destroys the source/originalSource elements)
+            let c = [...document.querySelectorAll('.circle')].filter(he => he.style.background == circle.style.background)[0];
+            c.style.position = "fixed";
+            c.style.top = "0";
+            c.style.left = "0";
+            c.style.transform = draggable.mirror.style.transform;
+            console.log("Still ordering");
         }
     });
 
     startTimer(30000, 5000, gameStates.checkorder);
 
+}
+
+// FULLSCREEN FROM https://www.w3schools.com/jsref/met_element_requestfullscreen.asp
+/* Get the documentElement (<html>) to display the page in fullscreen */
+var elem = document.documentElement;
+
+/* View in fullscreen */
+function openFullscreen() {
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+    }
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { /* Firefox */
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { /* IE/Edge */
+        document.msExitFullscreen();
+    }
 }
