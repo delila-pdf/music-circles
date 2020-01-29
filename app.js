@@ -38,7 +38,7 @@ function displayModal(html) {
 }
 
 modal.addEventListener("click", function () {
-    // openFullscreen();
+    openFullscreen();
     switch (gameState) {
         case gameStates.initial:
             changeGameState(gameStates.listening);
