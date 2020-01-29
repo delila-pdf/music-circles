@@ -38,7 +38,7 @@ function displayModal(html) {
 }
 
 modal.addEventListener("click", function () {
-    openFullscreen();
+    // openFullscreen();
     switch (gameState) {
         case gameStates.initial:
             changeGameState(gameStates.listening);
@@ -210,8 +210,30 @@ function orderPhase() {
 
     // add top sort bar
 
-    circles.forEach(c => {
+    circles.forEach((c, i) => {
         c.style.transition = "none";
+        c.style.position = "fixed";
+        c.style.top = "0";
+        c.style.left = "0";
+        switch (i) {
+            case 0:
+                c.style.transform = "translate3d(50vw, 20vh, 0px) translateX(-50%)";
+                break;
+            case 1:
+                c.style.transform = "translate3d(5vw, 48vh, 0px) translateY(-50%)";
+                break;
+            case 2:
+                c.style.transform = "translate3d(70vw, 48vh, 0px) translateY(-50%)";
+                break;
+            case 3:
+                c.style.transform = "translate3d(20vw, 75vh, 0px) translateY(-50%)";
+                break;
+            case 4:
+                c.style.transform = "translate3d(55vw, 75vh, 0px) translateY(-50%)";
+                break;
+            default:
+                break;
+        }
     });
 
     const draggable = new Draggable.Draggable(document.querySelectorAll("#game"), {
@@ -248,15 +270,12 @@ function orderPhase() {
                 // diplayVerify()
             } else {
                 console.log("Still ordering");
-                // hideVerify
+                // hideVerify()
             }
         } else {
             circleBox.append(circle);
             // use background as key (draggable.js somehow destroys the source/originalSource elements)
-            let c = [...document.querySelectorAll('.circle')].filter(he => he.style.background == circle.style.background)[0];
-            c.style.position = "fixed";
-            c.style.top = "0";
-            c.style.left = "0";
+            let c = [...document.querySelectorAll('.circle')].filter(c => c.style.background == circle.style.background)[0];
             c.style.transform = draggable.mirror.style.transform;
             console.log("Still ordering");
         }
