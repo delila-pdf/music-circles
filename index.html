@@ -46,13 +46,17 @@
         pointer-events: none;
     }
 
-    #skip-icon {
+    #arrow {
         position: fixed;
         top: 0;
         right: 0;
         height: 10vh;
-        width: 10vh;
         color: darkorange;
+        display: flex;
+    }
+
+    #skip-icon {
+        padding-right: 12px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -62,17 +66,14 @@
     }
     
     #next-song {
+        padding-top: 0.4em;
         opacity: 0;
-        position: fixed;
         display: flex;
         justify-content: center;
         align-items: center;
         font-family: monospace;
-        top: 0;
-        font-size: 1.3em;
-        right: 12vh;
-        height: 10vh;
-        color: darkorange;
+        font-size: 1.4em;
+        padding-right: 0.5em;
     }
 
     #sort-bar {
@@ -103,6 +104,16 @@
         height: 100% !important;
         border-radius: 0px !important;
         transform: none !important;
+    }
+
+    .sort-container:nth-child(1) {
+        border-top-left-radius: 6px !important;
+        overflow: hidden;
+    }
+
+    .sort-container:nth-child(5) {
+        border-top-right-radius: 6px !important;
+        overflow: hidden;
     }
 
 
@@ -185,23 +196,25 @@
     }
 
     #modal {
-        position: absolute;
-        height: 30vh;
-        width: 80vw;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #252525;
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
         opacity: 0.8;
         font-family: Arial, Helvetica, sans-serif;
-        color: #f5f5f5;
+        color: darkorange;
         z-index: 1;
+        font-weight: 100;
         border-radius: 6px;
         transition: 0.3s ease-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 
     #modaltext {
         user-select: none;
+        line-height: 1.5em;
         position: relative;
         top: 50%;
         transform: translateY(-50%);
@@ -234,7 +247,7 @@
         justify-content: center;
         align-items: center;
         font-family: monospace;
-        transition: 0.3s ease-out;
+        transition: 0.5s ease-out;
     }
 
     .cover {
@@ -242,6 +255,7 @@
     }
     .cover img {
         width: 80vw;
+        border-radius: 6px;
     }
 
     .correct {
@@ -270,13 +284,13 @@
         </div>
 
         <div id="progress-bar">
-            <div id="next-song">next song</div>
-            <div id="skip-icon">&gt;</div>
+            <div id="arrow">
+                <div id="next-song">next song</div>
+                <div id="skip-icon">&gt;</div>
+            </div>
             <div id="progress"></div>
         </div>
         
-
-
         <div id="sort-bar">
             <div class="sort-container">1</div>
             <div class="sort-container">2</div>

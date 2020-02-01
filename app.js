@@ -1,6 +1,7 @@
 const snippetCount = 5;
 // snippet objects of a song
 let snippets = [];
+// song meta data
 let songs = [{
     title: "Don't Stop The Music",
     artist: "Rihanna",
@@ -39,6 +40,9 @@ const infoBox = document.querySelector("#info-box");
 let progressBar = document.querySelector("#progress-bar");
 let skipIcon = document.querySelector("#skip-icon");
 const skipInfo = document.querySelector("#next-song");
+const progress = document.querySelector("#progress");
+const sortBar = document.querySelector("#sort-bar");
+const arrow = document.querySelector("#arrow");
 
 changeGameState(gameStates.initial);
 
@@ -64,8 +68,8 @@ modal.addEventListener("click", function () {
             changeGameState(gameStates.listening);
             break;
         case gameStates.ordering:
-            skipIcon.removeEventListener("click", resetProgressBarToOrdering)
-            skipIcon.addEventListener("click", resetProgressBarToEvaluate);
+            arrow.removeEventListener("click", resetProgressBarToOrdering)
+            arrow.addEventListener("click", resetProgressBarToEvaluate);
             orderPhase();
             break;
         case gameStates.listening:
@@ -86,13 +90,14 @@ function resetProgressBarToOrdering() {
 function changeGameState(state) {
     let prevState = gameState;
     gameState = state;
+    progress.style.background = "linear-gradient(to right, #ebbd00, #f16e00)";
     switch (gameState) {
         case gameStates.initial:
             displayModal(`<p>Guess the right order of the song.</p>
             <p> Click here to start! </p>`);
             break;
         case gameStates.listening:
-            skipIcon.addEventListener("click", resetProgressBarToOrdering);
+            arrow.addEventListener("click", resetProgressBarToOrdering);
             hideModal();
             initSong(currentSong, currentSong);
             startTimer(90000, 10000, gameStates.ordering);
@@ -107,8 +112,8 @@ function changeGameState(state) {
                 c.style.transform = "scale(0)";
             });
             displayModal(`<p> Now drag and drop the circles in the fitting order on the numbers</p>`);
-            document.querySelector("#progress").style.width = "100%";
-            document.querySelector("#sort-bar").style.display = "flex";
+            progress.style.width = "100%";
+            sortBar.style.display = "flex";
             break;
         case gameStates.evaluate:
             evaluate();
@@ -117,7 +122,6 @@ function changeGameState(state) {
             break;
     }
 }
-//after clicking on modal
 
 
 function initSong(songNumber, colorSchemeNumber) {
@@ -162,12 +166,9 @@ function createSnippets(songNumber, colorSchemeNumber) {
 }
 
 function buildCircle(circle, color, boxContainer, snippet) {
-
     circle.setAttribute("class", "circle");
     circle.setAttribute("style", "background:" + color);
-
     setCircleSize(circle, createRandomDiameter(boxContainer));
-
     circle.addEventListener("click", bounce);
 
     boxContainer.append(circle);
@@ -188,10 +189,6 @@ function buildCircle(circle, color, boxContainer, snippet) {
         }
     }
 }
-
-
-
-
 
 function buildAudio(snippet) {
     snippet.audio.addEventListener("ended", function stopBouncingandPlaying() {
@@ -220,15 +217,15 @@ function createRandomDiameter(boxContainer) {
 let remainingTime;
 let interval;
 function startTimer(initTime, alertTime, targetState) {
-    document.querySelector("#progress").style.width = "100%";
+    progress.style.width = "100%";
     remainingTime = initTime;
     interval = setInterval(() => {
         remainingTime -= 1000;
         document.querySelector("#progress").style.width = (remainingTime / initTime) * 100 + "%";
         if (remainingTime === alertTime - 1000) {
-            document.querySelector("#progress").style.transition.property = "background";
-            document.querySelector("#progress").style.transition.duration = "0.5s";
-            document.querySelector("#progress").style.background = "red";
+            progress.style.transition.property = "background";
+            progress.style.transition.duration = "0.5s";
+            progress.style.background = "red";
         }
         if (remainingTime === 0) {
             clearInterval(interval);
@@ -257,14 +254,12 @@ function orderPhase() {
         c.style.height = "25vw";
     });
 
-    // add top sort bar
-
     circles.forEach((c, i) => {
-
         c.style.transition = "none";
         c.style.position = "fixed";
         c.style.top = "0";
         c.style.left = "0";
+        // pentagon
         switch (i) {
             case 0:
                 c.style.transform = "translate3d(50vw, 20vh, 0px) translateX(-50%)";
@@ -292,8 +287,6 @@ function orderPhase() {
     });
 
     let targetSortContainer;
-    let sortBarContainers = document.querySelectorAll(".sort-container");
-
     draggable.on("drag:move", e => {
         // draggable.js throws useless TypeErrors if you move out of the screen, thus we catch and ignore them
         try {
@@ -320,7 +313,6 @@ function orderPhase() {
             // use background as key (draggable.js somehow destroys the source/originalSource elements)
             let c = [...document.querySelectorAll('.circle')].filter(c => c.style.background == circle.style.background)[0];
             c.style.transform = draggable.mirror.style.transform;
-            console.log("Still ordering");
         }
     });
 
@@ -330,52 +322,48 @@ function orderPhase() {
 
 
 function evaluate() {
-    skipIcon.removeEventListener("click", resetProgressBarToEvaluate);
+    arrow.removeEventListener("click", resetProgressBarToEvaluate);
     clearInterval(interval);
     document.querySelector("#progress").style.width = "0px";
     try {
         if (verifyOrder()) {
-            console.log("correct");
             let song = songs[currentSong];
             displayInfoBox(renderSong(song.title, song.artist, song.coverSrc));
             let currentSnippet = 0;
             snippets.forEach(s => {
                 s.audio.addEventListener("ended", () => {
                     if (++currentSnippet > 4) return;
-                    let snippet = snippets[currentSnippet];
-                    let circle = snippet.circle;
-                    snippet.audio.play();
-                    snippet.isPlaying = true;
-                    circle.style.animationName = "bounce";
-                    circle.style.animationDuration = "0.5s";
-                    circle.style.animationIterationCount = "infinite";
-
+                    playAudio(snippets[currentSnippet]);
                 });
             });
-            snippets[0].audio.play();
-            snippets[0].isPlaying = true;
-            snippets[0].circle.style.animationName = "bounce";
-            snippets[0].circle.style.animationDuration = "0.5s";
-            snippets[0].circle.style.animationIterationCount = "infinite";
+            playAudio(snippets[0]);
 
             skipInfo.innerHTML = "next song";
             skipInfo.style.opacity = 1;
 
-            skipIcon.addEventListener("click", nextSong);
-
+            arrow.addEventListener("click", nextSong);
         } else {
-            displayInfoBox("FAIL");
+            displayInfoBox(`<div style="text-align:center" class="correct">;(</div>`);
+            snippets.map(s => s.circle).forEach(c => c.style.transform = "scale(0)");
             skipInfo.innerHTML = "try again";
             skipInfo.style.opacity = 1;
-            skipIcon.addEventListener("click", nextSong);
+            arrow.addEventListener("click", nextSong);
         }
     } catch (e) {
-        console.log("nothing to evaluate");
         displayInfoBox("Time is up :(");
         snippets.map(s => s.circle).forEach(c => c.style.transform = "scale(0)")
         skipInfo.innerHTML = "try again";
         skipInfo.style.opacity = 1;
-        skipIcon.addEventListener("click", nextSong);
+        arrow.addEventListener("click", nextSong);
+    }
+
+    function playAudio(snippet) {
+        let circle = snippet.circle;
+        snippet.audio.play();
+        snippet.isPlaying = true;
+        circle.style.animationName = "bounce";
+        circle.style.animationDuration = "0.5s";
+        circle.style.animationIterationCount = "infinite";
     }
 
     function renderSong(title, artist, coverSrc) {
@@ -390,7 +378,6 @@ function evaluate() {
             </div>
         </div>`;
     }
-
 }
 
 function verifyOrder() {
@@ -402,16 +389,15 @@ function verifyOrder() {
                 correct = false;
             }
         }
-    } catch(e) {
+    } catch (e) {
         return false;
     }
-    
     return correct;
 }
 
 function nextSong() {
     if (verifyOrder()) currentSong++;
-    skipIcon.removeEventListener("click", nextSong);
+    arrow.removeEventListener("click", nextSong);
     draggable.destroy();
     for (let i = 0; i < snippets.length; i++) {
         snippets[i].audio.load();
@@ -419,7 +405,7 @@ function nextSong() {
         snippets[i].circle.style.animationName = "none";
     };
     circleBox.classList.remove("dice");
-    document.querySelector("#sort-bar").style.display = "none";
+    sortBar.style.display = "none";
 
     let leftRow = document.createElement("div");
     leftRow.setAttribute("id", "row-left");
@@ -428,7 +414,6 @@ function nextSong() {
             b.setAttribute("class", "box-left box-container");
             leftRow.appendChild(b);
         });
-
     let rightRow = document.createElement("div");
     rightRow.setAttribute("id", "row-right");
     [document.createElement("div"), document.createElement("div")].forEach(b => {
@@ -444,9 +429,6 @@ function nextSong() {
     skipInfo.style.opacity = 0;
     changeGameState(gameStates.initial);
 }
-
-
-
 
 function clearEventListeners(node) {
     return node.parentNode.replaceChild(node.cloneNode(true), node);
@@ -465,8 +447,6 @@ function resetProgressBar(targetState) {
     clearInterval(interval);
     changeGameState(targetState);
 }
-
-
 
 
 // FULLSCREEN FROM https://www.w3schools.com/jsref/met_element_requestfullscreen.asp
