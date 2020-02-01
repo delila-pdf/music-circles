@@ -38,19 +38,50 @@
         height: 100%;
         width: 100%;
         position: absolute;
-        background: linear-gradient(to right, #c5ffff, #0057ff);
+        background: linear-gradient(to right, #ebbd00, #f16e00);
         border-top-right-radius: 6px;
         border-bottom-right-radius: 6px;
         transition: 1s linear;
+        z-index: 100;
+        pointer-events: none;
+    }
+
+    #skip-icon {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 10vh;
+        width: 10vh;
+        color: darkorange;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 5em;
+        font-family: monospace;
+        font-weight: 800;
+    }
+    
+    #next-song {
+        opacity: 0;
+        position: fixed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: monospace;
+        top: 0;
+        font-size: 1.3em;
+        right: 12vh;
+        height: 10vh;
+        color: darkorange;
     }
 
     #sort-bar {
-        display: flex;
         height: 10vh;
         width: 100vw;
         position: absolute;
         bottom: 0;
         display: none;
+        z-index: 1;
     }
 
     #sort-bar>div {
@@ -192,10 +223,44 @@
         z-index: 9999;
         opacity: 0.86;
     }
+
+    #info-box {
+        opacity: 0;;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        color: darkorange;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: monospace;
+        transition: 0.3s ease-out;
+    }
+
+    .cover {
+        margin-top: 1em;
+    }
+    .cover img {
+        width: 80vw;
+    }
+
+    .correct {
+        font-size: 2em;
+    }
+
+    .title {
+        font-size: 1.3em;
+        margin-bottom: 0.5em;
+    }
+
 </style>
 
 <body>
     <div id="game">
+
+        <div id="info-box">
+            <div><p>:(</p></div>
+        </div>
 
         <div id="modal">
             <div id="modaltext">
@@ -205,8 +270,12 @@
         </div>
 
         <div id="progress-bar">
+            <div id="next-song">next song</div>
+            <div id="skip-icon">&gt;</div>
             <div id="progress"></div>
         </div>
+        
+
 
         <div id="sort-bar">
             <div class="sort-container">1</div>
@@ -233,5 +302,4 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.js"></script>
 <script src="./app.js"></script>
-
 </html>
