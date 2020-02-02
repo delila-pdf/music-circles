@@ -6,17 +6,30 @@ let songs = [{
     title: "Don't Stop The Music",
     artist: "Rihanna",
     coverSrc: "./songs/song_0/cover.png"
-},
-{
+}, {
     title: "Maria Maria",
     artist: "Santana",
     coverSrc: "./songs/song_1/cover.jpg"
+}, {
+    title: "Hips Don't Lie",
+    artist: "Shakira",
+    coverSrc: "./songs/song_2/cover.jpg"
+}, {
+    title: "I See Fire",
+    artist: "Ed Sheeran",
+    coverSrc: "./songs/song_3/cover.jpg"
+}, {
+    title: "Don't Cha",
+    artist: "The Pussycat Dolls ft. Buste Rhymes",
+    coverSrc: "./songs/song_4/cover.jpg"
 }];
 // randomize snippets each time
 let colorSchemes = [
     ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
     ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"],
-    ["#FF3B01", "#316CF4", "#FF5FDB", "#fff", "#FDDFE1"]
+    ["#FF3B01", "#316CF4", "#FF5FDB", "#fff", "#00DFE1"],
+    ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
+    ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"]
 ];
 let containerNumbers = [0, 1, 2, 3, 4];
 let circleBox = document.querySelector("#circle-box");
@@ -58,10 +71,9 @@ function displayModal(html) {
     modal.style.display = "block";
     modalText.innerHTML = html;
     setTimeout(() => modal.style.opacity = "1", 0);
-
 }
 
-modal.addEventListener("click", function () {
+modal.addEventListener("click", function() {
     openFullscreen();
     switch (gameState) {
         case gameStates.initial:
@@ -93,7 +105,7 @@ function changeGameState(state) {
     progress.style.background = "linear-gradient(to right, #ebbd00, #f16e00)";
     switch (gameState) {
         case gameStates.initial:
-            displayModal(`<p>Guess the right order of the song.</p>
+            displayModal(`<p>Level ${currentSong + 1}</p><p>Guess the right order of the song.</p>
             <p> Click here to start! </p>`);
             break;
         case gameStates.listening:
@@ -173,19 +185,22 @@ function buildCircle(circle, color, boxContainer, snippet) {
 
     boxContainer.append(circle);
     setTimeout(() => { circle.style.transform = "scale(1)"; }, Math.random() * 300);
+
     function bounce() {
-        if (!snippet.isPlaying) {
-            // stop playing audio
-            for (let i = 0; i < snippets.length; i++) {
-                snippets[i].audio.load();
-                snippets[i].isPlaying = false;
-                snippets[i].circle.style.animationName = "none";
-            };
-            snippet.audio.play();
-            snippet.isPlaying = true;
-            circle.style.animationName = "bounce";
-            circle.style.animationDuration = "0.5s";
-            circle.style.animationIterationCount = "infinite";
+        if (gameState == gameStates.listening) {
+            if (!snippet.isPlaying) {
+                // stop playing audio
+                for (let i = 0; i < snippets.length; i++) {
+                    snippets[i].audio.load();
+                    snippets[i].isPlaying = false;
+                    snippets[i].circle.style.animationName = "none";
+                };
+                snippet.audio.play();
+                snippet.isPlaying = true;
+                circle.style.animationName = "bounce";
+                circle.style.animationDuration = "0.5s";
+                circle.style.animationIterationCount = "infinite";
+            }
         }
     }
 }
@@ -216,6 +231,7 @@ function createRandomDiameter(boxContainer) {
 
 let remainingTime;
 let interval;
+
 function startTimer(initTime, alertTime, targetState) {
     progress.style.width = "100%";
     remainingTime = initTime;
@@ -410,10 +426,10 @@ function nextSong() {
     let leftRow = document.createElement("div");
     leftRow.setAttribute("id", "row-left");
     [document.createElement("div"), document.createElement("div"), document.createElement("div")]
-        .forEach(b => {
-            b.setAttribute("class", "box-left box-container");
-            leftRow.appendChild(b);
-        });
+    .forEach(b => {
+        b.setAttribute("class", "box-left box-container");
+        leftRow.appendChild(b);
+    });
     let rightRow = document.createElement("div");
     rightRow.setAttribute("id", "row-right");
     [document.createElement("div"), document.createElement("div")].forEach(b => {
