@@ -3,20 +3,20 @@ const snippetCount = 5;
 let snippets = [];
 // song meta data
 let songs = [{
+    title: "I See Fire",
+    artist: "Ed Sheeran",
+    coverSrc: "./songs/song_0/cover.jpg"
+}, {
     title: "Don't Stop The Music",
     artist: "Rihanna",
-    coverSrc: "./songs/song_0/cover.png"
-}, {
-    title: "Maria Maria",
-    artist: "Santana",
-    coverSrc: "./songs/song_1/cover.jpg"
+    coverSrc: "./songs/song_1/cover.png"
 }, {
     title: "Hips Don't Lie",
     artist: "Shakira",
     coverSrc: "./songs/song_2/cover.jpg"
 }, {
-    title: "I See Fire",
-    artist: "Ed Sheeran",
+    title: "Maria Maria",
+    artist: "Santana",
     coverSrc: "./songs/song_3/cover.jpg"
 }, {
     title: "Don't Cha",
@@ -25,11 +25,11 @@ let songs = [{
 }];
 // randomize snippets each time
 let colorSchemes = [
-    ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
-    ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"],
-    ["#FF3B01", "#316CF4", "#FF5FDB", "#fff", "#00DFE1"],
-    ["#FFC19B", "#D3FF11", "#FF731E", "#04C7FF", "#D536FF"],
-    ["#c2c1c5", "#a00068", "#26f4ff", "#0057FF", "#ff8cf1"]
+    ["#defe47", "#ff00a0", "#ff124f", "#0600ff", "#fe75fe"],
+    ["#0000ff", "#e501d4", "#04ffaf", "#4985ff", "#ff080e"],
+    ["#08deea", "#fd8090", "#c4ffff", "#bb14dd", "#1261d1"],
+    ["#fdd164", "#36fdc6", "#e083d2", "#bb6cde", "#bced89"],
+    ["#fc5f58", "#f73c6b", "#c04f8a", "#ef8143", "#0a1ef7"]
 ];
 let containerNumbers = [0, 1, 2, 3, 4];
 let circleBox = document.querySelector("#circle-box");
@@ -45,36 +45,97 @@ let gameState;
 let currentSong = 0;
 let draggable;
 
-//beginning gameState
-
+const game = document.querySelector("#game");
 const modal = document.querySelector("#modal");
-const modalText = document.querySelector("#modaltext");
 const infoBox = document.querySelector("#info-box");
-let progressBar = document.querySelector("#progress-bar");
-let skipIcon = document.querySelector("#skip-icon");
-const skipInfo = document.querySelector("#next-song");
+const skipInfo = document.querySelector("#skip-button");
 const progress = document.querySelector("#progress");
 const sortBar = document.querySelector("#sort-bar");
 const arrow = document.querySelector("#arrow");
+const intro = document.querySelector("#intro");
+const levelNumberDisplay = document.querySelectorAll(".level");
+const levelDisplayTop = document.querySelector("#level-display div");
+const rotatingText = document.querySelector(".rotating-text");
+const logo = document.querySelector("#logo");
+const songInfo = document.querySelector("#song-info");
+const smallModal = document.querySelector("#small-modal");
+const helpContainer = document.querySelector("#help");
+const helpButton = document.querySelector(".help-button");
+const helpModalListening = document.querySelector(".help-modal.listening");
+const helpModalOrdering = document.querySelector(".help-modal.ordering");
+const helpModalCloseButton = document.querySelectorAll(".close-button");
+const modalActionButton = document.querySelectorAll(".modal-action-button");
+
+setTimeout(() => {
+    intro.style.opacity = 0;
+}, 2000);
+
+setTimeout(() => {
+    game.style.opacity = 1;
+}, 2500);
+
+setTimeout(() => {
+    intro.parentNode.removeChild(intro);
+}, 2700);
+
 
 changeGameState(gameStates.initial);
 
 function hideModal() {
     setTimeout(() => {
         modal.style.display = "none";
-        modalText.innerHTML = "";
     }, 300);
     modal.style.opacity = "0";
+    logo.style.opacity = "1";
 }
 
-function displayModal(html) {
+function hideSmallModal() {
+    if (smallModal.opacity = 1) {
+        smallModal.style.animation = "1s hide ease-out";
+        smallModal.style.opacity = "0";
+    }
+}
+
+levelDisplayTop.innerHTML = `Level ${currentSong + 1}`;
+
+function displayModal(correctOrder) {
+    logo.style.opacity = "0";
+    levelNumberDisplay.forEach(d => {
+        d.innerHTML = `Level ${currentSong + 1}`;
+    });
     modal.style.display = "block";
-    modalText.innerHTML = html;
+    document.querySelector(".visible")?.classList.remove("visible");
+    document.querySelector(`.${gameState}${correctOrder ? '.correct-order' : ''}`)
+        .classList.add("visible");
     setTimeout(() => modal.style.opacity = "1", 0);
+
 }
 
-modal.addEventListener("click", function() {
-    openFullscreen();
+function displayHelpModal() {
+    helpButton.style.background = "var(--special-color)";
+    if (gameState == gameStates.ordering) {
+        helpModalOrdering.classList.add("open");
+    }
+    else if (gameState == gameStates.listening) {
+        console.log("hahah");
+        helpModalListening.classList.add("open");
+    }
+}
+
+function hideHelpModal() {
+    [helpModalListening, helpModalOrdering].reduce((p, c) => p || c.classList.remove('open'), false);
+    helpButton.style.background = "var(--light-grey)";
+}
+
+modal.addEventListener("click", async function (e) {
+    //openFullscreen();
+    if (!e.target.classList.contains('modal-action-button')) {
+        return;
+    }
+    const button = e.target;
+    button.classList.add("animate");
+    await sleepFor(400);
+    button.classList.remove("animate");
     switch (gameState) {
         case gameStates.initial:
             changeGameState(gameStates.listening);
@@ -85,6 +146,9 @@ modal.addEventListener("click", function() {
             orderPhase();
             break;
         case gameStates.listening:
+            break;
+        case gameStates.evaluate:
+            nextSong();
             break;
         default:
             break;
@@ -99,20 +163,43 @@ function resetProgressBarToOrdering() {
     resetProgressBar(gameStates.ordering)
 }
 
+function makeEmoji() {
+    var emoji = document.createElement("img");
+    emoji.src = "./assets/sad-face.png";
+    emoji.className = "emoji";
+    game.appendChild(emoji);
+    var xpos = Math.floor(Math.random() * 100);
+    emoji.style.left = xpos + "vw";
+    emoji.style.zIndex = 100;
+    return emoji;
+}
+
+
 function changeGameState(state) {
     let prevState = gameState;
     gameState = state;
-    progress.style.background = "linear-gradient(to right, #ebbd00, #f16e00)";
     switch (gameState) {
         case gameStates.initial:
-            displayModal(`<p>Level ${currentSong + 1}</p><p>Guess the right order of the song.</p>
-            <p> Click here to start! </p>`);
+            displayModal();
+            modal.classList.add("grey");
+            progress.style.width = "0";
+            levelDisplayTop.style.opacity = "0";
+            helpButton.addEventListener("click", displayHelpModal);
+            helpModalCloseButton.forEach(h => { h.addEventListener("click", hideHelpModal) });
             break;
         case gameStates.listening:
+            modal.classList.remove("grey");
+            circleBox.addEventListener("click", hideSmallModal());
+            levelDisplayTop.style.opacity = "1";
+            rotatingText.classList.add("visible");
+            helpContainer.classList.add("visible");
+            arrow.classList.add("visible-flex");
+            skipInfo.style.opacity = "1";
+            progress.style.width = "100%";
             arrow.addEventListener("click", resetProgressBarToOrdering);
             hideModal();
             initSong(currentSong, currentSong);
-            startTimer(90000, 10000, gameStates.ordering);
+            startTimer(100000, 10000, gameStates.ordering);
             break;
         case gameStates.ordering:
             for (let i = 0; i < snippets.length; i++) {
@@ -120,14 +207,21 @@ function changeGameState(state) {
                 snippets[i].isPlaying = false;
                 snippets[i].circle.style.animationName = "none";
             };
-            document.querySelectorAll(".circle").forEach(c => {
-                c.style.transform = "scale(0)";
-            });
-            displayModal(`<p> Now drag and drop the circles in the fitting order on the numbers</p>`);
+            document.querySelectorAll(".circle")
+                .forEach(c => {
+                    c.style.transform = "scale(0)";
+                });
+            displayModal();
+            modal.classList.add("blue");
+            levelDisplayTop.style.opacity = "0";
+            logo.classList.add("white");
             progress.style.width = "100%";
-            sortBar.style.display = "flex";
+            rotatingText.classList.remove("visible");
+            helpContainer.classList.remove("visible");
             break;
         case gameStates.evaluate:
+            modal.classList.remove("blue");
+            helpContainer.classList.remove("visible");
             evaluate();
             break;
         default:
@@ -154,7 +248,7 @@ function createSnippets(songNumber, colorSchemeNumber) {
         return Math.random() >= 0.5 ? 1 : -1;
     });
     //random container row
-    circleBox.style.flexDirection = Math.random() >= 0.5 ? "row-reverse" : "row";
+    circleBox.style.flexDirection = "row-reverse";
     // create snippet objects
     const boxContainers = document.querySelectorAll(".box-container");
     for (let i = 0; i < snippetCount; i++) {
@@ -180,11 +274,12 @@ function createSnippets(songNumber, colorSchemeNumber) {
 function buildCircle(circle, color, boxContainer, snippet) {
     circle.setAttribute("class", "circle");
     circle.setAttribute("style", "background:" + color);
-    setCircleSize(circle, createRandomDiameter(boxContainer));
-    circle.addEventListener("click", bounce);
+    circle.addEventListener("click", () => {
+        bounce();
+    });
 
     boxContainer.append(circle);
-    setTimeout(() => { circle.style.transform = "scale(1)"; }, Math.random() * 300);
+    setTimeout(() => { circle.style.transform = "scale(1)"; });
 
     function bounce() {
         if (gameState == gameStates.listening) {
@@ -214,21 +309,6 @@ function buildAudio(snippet) {
     snippet.audio.setAttribute("class", "audio");
 }
 
-function setCircleSize(circle, diameter) {
-    circle.style.height = diameter + "px";
-    circle.style.width = diameter + "px";
-}
-
-function createRandomDiameter(boxContainer) {
-    const bounding = boxContainer.getBoundingClientRect();
-    // random durchmesser
-    let diameter = Math.random() * bounding.width;
-    while (diameter < bounding.width * 0.4) {
-        diameter = Math.random() * bounding.width;
-    }
-    return diameter;
-}
-
 let remainingTime;
 let interval;
 
@@ -241,7 +321,7 @@ function startTimer(initTime, alertTime, targetState) {
         if (remainingTime === alertTime - 1000) {
             progress.style.transition.property = "background";
             progress.style.transition.duration = "0.5s";
-            progress.style.background = "red";
+            rotatingText.style.fill = "red";
         }
         if (remainingTime === 0) {
             clearInterval(interval);
@@ -250,7 +330,13 @@ function startTimer(initTime, alertTime, targetState) {
     }, 1000);
 }
 
+
+
 function orderPhase() {
+    sortBar.style.display = "flex";
+    logo.classList.remove("white");
+    levelDisplayTop.style.opacity = "1";
+    helpContainer.classList.add("visible");
     hideModal();
     document.querySelectorAll(".circle").forEach(c => c.style.transform = "scale(1)");
     let rowLeft = document.querySelector("#row-left");
@@ -266,8 +352,8 @@ function orderPhase() {
     circleBox.removeChild(rowRight);
 
     circles.forEach(c => {
-        c.style.width = "25vw";
-        c.style.height = "25vw";
+        c.style.width = "var(--sort-circle-size)";
+        c.style.height = "var(--sort-circle-size)";
     });
 
     circles.forEach((c, i) => {
@@ -281,23 +367,23 @@ function orderPhase() {
                 c.style.transform = "translate3d(50vw, 20vh, 0px) translateX(-50%)";
                 break;
             case 1:
-                c.style.transform = "translate3d(5vw, 48vh, 0px) translateY(-50%)";
+                c.style.transform = "translate3d(5vw, 43vh, 0px) translateY(-50%)";
                 break;
             case 2:
-                c.style.transform = "translate3d(70vw, 48vh, 0px) translateY(-50%)";
+                c.style.transform = "translate3d(70vw, 43vh, 0px) translateY(-50%)";
                 break;
             case 3:
-                c.style.transform = "translate3d(20vw, 75vh, 0px) translateY(-50%)";
+                c.style.transform = "translate3d(20vw, 60vh, 0px) translateY(-50%)";
                 break;
             case 4:
-                c.style.transform = "translate3d(55vw, 75vh, 0px) translateY(-50%)";
+                c.style.transform = "translate3d(55vw, 60vh, 0px) translateY(-50%)";
                 break;
             default:
                 break;
         }
     });
 
-    draggable = new Draggable.Draggable(document.querySelectorAll("#game"), {
+    draggable = new Draggable.Draggable(document.querySelector("#game"), {
         draggable: ".circle",
         delay: 0
     });
@@ -312,6 +398,9 @@ function orderPhase() {
                 target.append(draggable.mirror);
             } else {
                 circleBox.append(draggable.mirror);
+                const circleParent = e.data.source.parentElement;
+                circleParent.classList.contains('sort-container')
+                    && circleParent.classList.remove('filled');
                 targetSortContainer = null;
             }
         } catch (error) {
@@ -324,15 +413,17 @@ function orderPhase() {
         if (targetSortContainer != null) {
             circle.style += "z-index: -1;";
             targetSortContainer.append(circle);
+            targetSortContainer.classList.add('filled');
         } else {
             circleBox.append(circle);
             // use background as key (draggable.js somehow destroys the source/originalSource elements)
-            let c = [...document.querySelectorAll('.circle')].filter(c => c.style.background == circle.style.background)[0];
+            let c = [...document.querySelectorAll('.circle')]
+                .filter(c => c.style.background == circle.style.background)[0];
             c.style.transform = draggable.mirror.style.transform;
         }
     });
 
-    startTimer(30000, 5000, gameStates.evaluate);
+    startTimer(300000, 5000, gameStates.evaluate);
 
 }
 
@@ -341,10 +432,12 @@ function evaluate() {
     arrow.removeEventListener("click", resetProgressBarToEvaluate);
     clearInterval(interval);
     document.querySelector("#progress").style.width = "0px";
+    document.querySelector("#progress").style.opacity = "0";
+    draggable.destroy();
     try {
         if (verifyOrder()) {
             let song = songs[currentSong];
-            displayInfoBox(renderSong(song.title, song.artist, song.coverSrc));
+            displayInfoBox(renderSong(song.coverSrc));
             let currentSnippet = 0;
             snippets.forEach(s => {
                 s.audio.addEventListener("ended", () => {
@@ -352,56 +445,72 @@ function evaluate() {
                     playAudio(snippets[currentSnippet]);
                 });
             });
+            songInfo.innerHTML = `${song.artist} – ${song.title}`;
             playAudio(snippets[0]);
-
-            skipInfo.innerHTML = "next song";
+            //change button to next song
             skipInfo.style.opacity = 1;
-
-            arrow.addEventListener("click", nextSong);
+            displayModal(true);
+            modal.classList.add("pink");
+            levelDisplayTop.classList.add("white-font");
+            arrow.classList.remove("visible-flex");
+            sortBar.style.display = "none";
         } else {
-            displayInfoBox(`<div style="text-align:center" class="correct">;(</div>`);
+            displayModal();
             snippets.map(s => s.circle).forEach(c => c.style.transform = "scale(0)");
-            skipInfo.innerHTML = "try again";
+            sortBar.style.display = "none";
+            skipInfo.classList.remove("skip");
+            modal.classList.add("red");
+            levelDisplayTop.style.opacity = "0";
+            arrow.classList.remove("visible-flex");
             skipInfo.style.opacity = 1;
-            arrow.addEventListener("click", nextSong);
+            for (let i = 0; i < 16; i++) {
+                setTimeout(() => {
+                    let emoji = makeEmoji();
+                    setTimeout(() => emoji.remove(), 2300);
+                }, 200 * i);
+            }
+
         }
     } catch (e) {
+        console.error(e);
         displayInfoBox("Time is up :(");
         snippets.map(s => s.circle).forEach(c => c.style.transform = "scale(0)")
-        skipInfo.innerHTML = "try again";
+        skipInfo.classList.remove("skip");
         skipInfo.style.opacity = 1;
         arrow.addEventListener("click", nextSong);
+        modal.classList.remove("red");
     }
 
     function playAudio(snippet) {
         let circle = snippet.circle;
         snippet.audio.play();
         snippet.isPlaying = true;
-        circle.style.animationName = "bounce";
-        circle.style.animationDuration = "0.5s";
+        circle.style.animationName = "riseAndShine";
+        circle.style.animationDuration = "0.63s";
         circle.style.animationIterationCount = "infinite";
     }
 
-    function renderSong(title, artist, coverSrc) {
-        return `
-        <div class="song-meta">
-            <div class="correct">Nice job!</div>
-            <br>
-            <div class="tilte">${title}</div>
-            <div class="artist">${artist}</div>
+    function renderSong(coverSrc) {
+        return `<div class="song-meta">
+            <div class="background-blue"></div>
             <div class="cover">
                 <img src="${coverSrc}"/>
             </div>
         </div>`;
+
     }
 }
+
 
 function verifyOrder() {
     let correct = true;
     let containers = document.querySelectorAll(".sort-container");
+    console.log('CONTAINERS', containers);
+    console.log('SNIPPETS', snippets);
+
     try {
         for (let i = 0; i < 5; i++) {
-            if (containers[i].children[0].style.background != snippets[i].circle.style.background) {
+            if (containers[i].children[1].style.background != snippets[i].circle.style.background) {
                 correct = false;
             }
         }
@@ -413,8 +522,20 @@ function verifyOrder() {
 
 function nextSong() {
     if (verifyOrder()) currentSong++;
+
+    if (currentSong > 4) currentSong = 0;
+
+    document.querySelector("#progress").style.opacity = "1";
     arrow.removeEventListener("click", nextSong);
-    draggable.destroy();
+    modal.classList.remove("red");
+    modal.classList.remove("pink");
+    levelDisplayTop.classList.remove("white-font");
+    levelDisplayTop.style.opacity = "0";
+    logo.classList.remove("white");
+    const filledSortContainers = document.querySelectorAll(".sort-container.filled");
+    filledSortContainers.forEach(f => {
+        f.classList.remove('filled');
+    })
     for (let i = 0; i < snippets.length; i++) {
         snippets[i].audio.load();
         snippets[i].isPlaying = false;
@@ -426,10 +547,10 @@ function nextSong() {
     let leftRow = document.createElement("div");
     leftRow.setAttribute("id", "row-left");
     [document.createElement("div"), document.createElement("div"), document.createElement("div")]
-    .forEach(b => {
-        b.setAttribute("class", "box-left box-container");
-        leftRow.appendChild(b);
-    });
+        .forEach(b => {
+            b.setAttribute("class", "box-left box-container");
+            leftRow.appendChild(b);
+        });
     let rightRow = document.createElement("div");
     rightRow.setAttribute("id", "row-right");
     [document.createElement("div"), document.createElement("div")].forEach(b => {
@@ -443,6 +564,7 @@ function nextSong() {
     document.querySelectorAll(".circle").forEach(c => c.parentNode.removeChild(c));
     hideInfoBox();
     skipInfo.style.opacity = 0;
+    arrow.style.opacity = 0;
     changeGameState(gameStates.initial);
 }
 
@@ -470,19 +592,19 @@ function resetProgressBar(targetState) {
 var elem = document.documentElement;
 
 /* View in fullscreen */
-function openFullscreen() {
+/*function openFullscreen() {
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { /* Firefox */
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE/Edge */
-        elem.msRequestFullscreen();
-    } else {
+    } else if (elem.mozRequestFullScreen) { /* Firefox *//*
+elem.mozRequestFullScreen();
+} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera *//*
+    elem.webkitRequestFullscreen();
+} else if (elem.msRequestFullscreen) { /* IE/Edge *//*
+    elem.msRequestFullscreen();
+} else {
 
-    }
 }
+}*/
 
 /* Close fullscreen */
 function closeFullscreen() {
@@ -496,3 +618,5 @@ function closeFullscreen() {
         document.msExitFullscreen();
     }
 }
+
+const sleepFor = async (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));

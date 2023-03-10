@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Intersection of Circles</title>
+    <style>
+        svg {
+            border: 1px solid black;
+        }
+
+        #red-circle {
+            transform: translateX(10px);
+        }
+    </style>
+</head>
+
+<body>
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <clipPath id="circle-clip">
+                <circle cx="40" cy="50" r="30" id="blue-circle-clip" />
+            </clipPath>
+        </defs>
+
+        <circle cx="40" cy="50" r="30" fill="red" id="red-circle" />
+        <circle cx="60" cy="50" r="30" fill="yellow" id="yellow-circle" />
+        <circle cx="60" cy="50" r="30" fill="blue" id="blue-circle" clip-path="url(#circle-clip)" />
+    </svg>
+    <script>
+        const clipCircle = document.getElementById("blue-circle-clip");
+        const blueCircle = document.getElementById("blue-circle");
+
+        // Change the cx attribute to 100
+        //blueCircle.setAttribute("cx", "70");
+        blueCircle.circle.animate(
+            { cx: ['40', '70'] },
+            { duration: 2000 }
+        );
+
+    </script>
+</body>
+
+</html>
